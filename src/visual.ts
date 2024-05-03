@@ -135,7 +135,7 @@ function getColumnStrokeWidth(isHighContrast: boolean): number {
         : 0;
 }
 
-export class BarChart implements IVisual {
+export class Visual implements IVisual {
     private barDataPoints: BarChartDataPoint[];
     private formattingSettingsService: FormattingSettingsService;
     private formattingSettings: BarChartSettingsModel;

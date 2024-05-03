@@ -1,9 +1,9 @@
 {
   "visual": {
     "name": "Bar Chart",
-    "displayName": "barChart",
+    "displayName": "Visualizer 3D",
     "guid": "PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166",
-    "visualClassName": "BarChart",
+    "visualClassName": "Visual",
     "version": "4.1.1.0",
     "description": "Sample bar chart",
     "supportUrl": "pbicvsupport@microsoft.com",
