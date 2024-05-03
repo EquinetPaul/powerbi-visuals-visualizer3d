@@ -1,7 +1,5 @@
-node_modules
+assets
+style
 dist
-coverage
-test
+node_modules
 .eslintrc.js
-karma.conf.ts
-test.webpack.config.js
