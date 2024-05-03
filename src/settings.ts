@@ -27,37 +27,31 @@
 "use strict";
 
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
+import powerbi from "powerbi-visuals-api";
 
 import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
+import IEnumMember = powerbi.IEnumMember
+
+import Slice = formattingSettings.Slice;
+import ItemDropdown = formattingSettings.ItemDropdown;
+import Card = formattingSettings.SimpleCard;
 
 /**
  * Data Point Formatting Card
  */
 class DataPointCardSettings extends FormattingSettingsCard {
+
+    public positionOptions: IEnumMember[] = [
+        { displayName: "Right", value: "Right" }, 
+        { displayName: "Left", value: "Left" }
+    ]
+
     defaultColor = new formattingSettings.ColorPicker({
         name: "defaultColor",
         displayName: "Default color",
-        value: { value: "" }
-    });
-
-    showAllDataPoints = new formattingSettings.ToggleSwitch({
-        name: "showAllDataPoints",
-        displayName: "Show all",
-        value: true
-    });
-
-    fill = new formattingSettings.ColorPicker({
-        name: "fill",
-        displayName: "Fill",
-        value: { value: "" }
-    });
-
-    fillRule = new formattingSettings.ColorPicker({
-        name: "fillRule",
-        displayName: "Color saturation",
-        value: { value: "" }
+        value: { value: "" },
     });
 
     fontSize = new formattingSettings.NumUpDown({
@@ -66,9 +60,22 @@ class DataPointCardSettings extends FormattingSettingsCard {
         value: 12
     });
 
+    enumMembers: IEnumMember[] = [
+        { value: "top", displayName: "Top" },
+        { value: "middle", displayName: "Middle" },
+        { value: "bottom", displayName: "Bottom" }
+    ];
+
+    position = new ItemDropdown({
+        name: "position",
+        displayName: "Position",
+        items: this.positionOptions,
+        value: this.positionOptions[0]
+    });
+
     name: string = "dataPoint";
     displayName: string = "Data colors";
-    slices: Array<FormattingSettingsSlice> = [this.defaultColor, this.showAllDataPoints, this.fill, this.fillRule, this.fontSize];
+    slices: Array<FormattingSettingsSlice> = [this.defaultColor, this.fontSize, this.position];
 }
 
 /**
@@ -79,5 +86,7 @@ export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     dataPointCard = new DataPointCardSettings();
 
+
     cards = [this.dataPointCard];
+
 }

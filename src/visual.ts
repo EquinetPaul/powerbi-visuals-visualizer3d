@@ -36,36 +36,77 @@ import IVisual = powerbi.extensibility.visual.IVisual;
 import { VisualFormattingSettingsModel } from "./settings";
 
 export class Visual implements IVisual {
-    private target: HTMLElement;
-    private updateCount: number;
-    private textNode: Text;
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
 
     constructor(options: VisualConstructorOptions) {
-        console.log('Visual constructor', options);
+
         this.formattingSettingsService = new FormattingSettingsService();
-        this.target = options.element;
-        this.updateCount = 0;
-        if (document) {
-            const new_p: HTMLElement = document.createElement("p");
-            new_p.appendChild(document.createTextNode("Update count:"));
-            const new_em: HTMLElement = document.createElement("em");
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
-            new_p.appendChild(new_em);
-            this.target.appendChild(new_p);
-        }
+ 
     }
 
     public update(options: VisualUpdateOptions) {
-        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews?.[0]);
 
-        console.log('Visual update', options);
-        if (this.textNode) {
-            this.textNode.textContent = (this.updateCount++).toString();
+        if (!options.dataViews || options.dataViews.length === 0 || !options.dataViews[0].table) {
+            return;
         }
+    
+        let table = options.dataViews[0].table;
+        let rows = table.rows;
+        let xIndex = table.columns.findIndex(column => column.roles.x);
+        let yIndex = table.columns.findIndex(column => column.roles.y);
+        let zIndex = table.columns.findIndex(column => column.roles.z);
+        let legendIndex = table.columns.findIndex(column => column.roles.legend);
+
+        let legendValues = []
+        rows.forEach( row => {
+            legendValues.push(row[legendIndex])
+        })
+        const uniqueLegendValues = [...new Set(legendValues)];
+        console.log(uniqueLegendValues)
+        legendValues = undefined;
+
+        this.formattingSettings.dataPointCard.position.items.push(
+            { displayName: "test", value: "test" }
+        )
+
+        console.log(this.formattingSettings.dataPointCard.position.value)
+    
+        // let traceMap = new Map();
+    
+        // rows.forEach(row => {
+        //     let legend = row[legendIndex];
+        //     let trace = traceMap.get(legend);
+        //     if (!trace) {
+        //         trace = {
+        //             x: [],
+        //             y: [],
+        //             z: [],
+        //             type: 'scatter3d',
+        //             mode: 'markers',
+        //             name: legend,
+        //             marker: { size: 4 }
+        //         };
+        //         traceMap.set(legend, trace);
+        //     }
+        //     trace.x.push(row[xIndex]);
+        //     trace.y.push(row[yIndex]);
+        //     trace.z.push(row[zIndex]);
+        // });
+    
+        // let layout = {
+        //     title: '3D Scatter Plot',
+        //     scene: { 
+        //         xaxis: { title: 'X Axis' },
+        //         yaxis: { title: 'Y Axis' },
+        //         zaxis: { title: 'Depth' }
+        //     }
+        // };
+    
+        // Plotly.newPlot(this.targetElement, Array.from(traceMap.values()), layout);
     }
+    
 
     /**
      * Returns properties pane formatting model content hierarchies, properties and latest formatting values, Then populate properties pane.

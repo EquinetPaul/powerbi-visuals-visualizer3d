@@ -1,14 +1,24 @@
 {
     "dataRoles": [
         {
-            "displayName": "Category Data",
-            "name": "category",
+            "name": "legend",
+            "displayName": "Legend",
             "kind": "Grouping"
         },
         {
-            "displayName": "Measure Data",
-            "name": "measure",
-            "kind": "Measure"
+            "name": "x",
+            "displayName": "X Axis",
+            "kind": "Grouping"
+        },
+        {
+            "name": "y",
+            "displayName": "Y Axis",
+            "kind": "Grouping"
+        },
+        {
+            "name": "z",
+            "displayName": "Depth",
+            "kind": "Grouping"
         }
     ],
     "objects": {
@@ -23,30 +33,16 @@
                         }
                     }
                 },
-                "showAllDataPoints": {
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "fill": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "fillRule": {
-                    "type": {
-                        "fill": {}
-                    }
-                },
-                 "fontSize": {
+                "fontSize": {
                     "type": {
                         "formatting": {
                             "fontSize": true
                         }
+                    }
+                },
+                "position": {
+                    "type": {
+                        "text": true
                     }
                 }
             }
@@ -54,20 +50,27 @@
     },
     "dataViewMappings": [
         {
-            "categorical": {
-                "categories": {
-                    "for": {
-                        "in": "category"
-                    },
-                    "dataReductionAlgorithm": {
-                        "top": {}
-                    }
-                },
-                "values": {
+            "table": {
+                "rows": {
                     "select": [
                         {
-                            "bind": {
-                                "to": "measure"
+                            "for": {
+                                "in": "legend"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "x"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "y"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "z"
                             }
                         }
                     ]
