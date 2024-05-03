@@ -1,1 +1,23 @@
-{"visual":{"name":"visualizer3d","displayName":"visualizer3d","guid":"visualizer3dFD6145F7686C4D6EAACBD976FBD1513B","visualClassName":"Visual","version":"1.0.0.0","description":"","supportUrl":"","gitHubUrl":""},"apiVersion":"5.3.0","author":{"name":"","email":""},"assets":{"icon":"assets/icon.png"},"externalJS":null,"style":"style/visual.less","capabilities":"capabilities.json","dependencies":null,"stringResources":[],"version":"1.0.0.0"}
+{
+  "visual": {
+    "name": "Bar Chart",
+    "displayName": "barChart",
+    "guid": "PBI_CV_9894B302_1DFF_4A96_ABFE_BF8588197166",
+    "visualClassName": "BarChart",
+    "version": "4.1.1.0",
+    "description": "Sample bar chart",
+    "supportUrl": "pbicvsupport@microsoft.com",
+    "gitHubUrl": ""
+  },
+  "apiVersion": "5.8.0",
+  "author": {
+    "name": "Author name",
+    "email": "author@mail.com"
+  },
+  "assets": {
+    "icon": "assets/icon.png"
+  },
+  "externalJS": [],
+  "style": "style/visual.less",
+  "capabilities": "capabilities.json"
+}
