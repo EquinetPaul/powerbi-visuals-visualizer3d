@@ -3,7 +3,7 @@ import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel
 
 import { dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
 
-import { BarChartSettingsModel } from "./barChartSettingsModel";
+import { BarChartSettingsModel } from "./settings";
 
 import "./../style/visual.less";
 

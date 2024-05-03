@@ -1,6 +1,6 @@
 import powerbiVisualsApi from "powerbi-visuals-api";
 import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
-import { BarChartDataPoint } from "./barChart";
+import { BarChartDataPoint } from "./visual";
 
 import Card = formattingSettings.SimpleCard;
 import Model = formattingSettings.Model;

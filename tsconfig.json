@@ -11,6 +11,6 @@
     "declaration": true
   },
   "files": [
-    "src/barChart.ts"
+    "src/visual.ts"
   ]
 }
