@@ -17,17 +17,13 @@
         }
     ],
     "objects": {
-        "dataPoint": {
+        "colorSelector": {
             "properties": {
-                "colorSelector": {
-                    "properties": {
+                "fill": {
+                    "type": {
                         "fill": {
-                            "type": {
-                                "fill": {
-                                    "solid": {
-                                        "color": true
-                                    }
-                                }
+                            "solid": {
+                                "color": true
                             }
                         }
                     }
