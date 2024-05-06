@@ -8,44 +8,27 @@
         {
             "displayName": "Measure Data",
             "name": "measure",
-            "kind": "Measure"
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Measure Data 2",
+            "name": "measure2",
+            "kind": "GroupingOrMeasure"
         }
     ],
     "objects": {
         "dataPoint": {
             "properties": {
-                "defaultColor": {
-                    "type": {
+                "colorSelector": {
+                    "properties": {
                         "fill": {
-                            "solid": {
-                                "color": true
+                            "type": {
+                                "fill": {
+                                    "solid": {
+                                        "color": true
+                                    }
+                                }
                             }
-                        }
-                    }
-                },
-                "showAllDataPoints": {
-                    "type": {
-                        "bool": true
-                    }
-                },
-                "fill": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "fillRule": {
-                    "type": {
-                        "fill": {}
-                    }
-                },
-                 "fontSize": {
-                    "type": {
-                        "formatting": {
-                            "fontSize": true
                         }
                     }
                 }
@@ -54,20 +37,22 @@
     },
     "dataViewMappings": [
         {
-            "categorical": {
-                "categories": {
-                    "for": {
-                        "in": "category"
-                    },
-                    "dataReductionAlgorithm": {
-                        "top": {}
-                    }
-                },
-                "values": {
+            "table": {
+                "rows": {
                     "select": [
                         {
-                            "bind": {
-                                "to": "measure"
+                            "for": {
+                                "in": "category"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "measure"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "measure2"
                             }
                         }
                     ]
