@@ -31,6 +31,17 @@ import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
+import Slice = formattingSettings.Slice;
+import Card = formattingSettings.SimpleCard;
+import ColorPicker = formattingSettings.ColorPicker;
+
+import { DataPoint } from "./visual";
+
+class ColorSelectorCardSettings extends Card {
+    name: string = "colorSelector";
+    displayName: string = "Data Colors";
+    slices: Slice[] = [];
+}
 
 /**
  * Data Point Formatting Card
@@ -78,6 +89,21 @@ class DataPointCardSettings extends FormattingSettingsCard {
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     dataPointCard = new DataPointCardSettings();
+    colorSelector = new ColorSelectorCardSettings();
 
-    cards = [this.dataPointCard];
+    cards = [this.colorSelector];
+
+    populateColorSelector(dataPoints: DataPoint[]) {
+        const slices: Slice[] = this.colorSelector.slices;
+        if (dataPoints) {
+            dataPoints.forEach(dataPoint => {
+                slices.push(new ColorPicker({
+                    name: "fill",
+                    displayName: dataPoint.category.toString(),
+                    value: { value: dataPoint.color },
+                    selector: dataPoint.selectionId.getSelector(),
+                }));
+            });
+        }
+    }
 }

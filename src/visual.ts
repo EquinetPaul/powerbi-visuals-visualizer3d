@@ -32,39 +32,53 @@ import "./../style/visual.less";
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
 import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
+import ISelectionId = powerbi.visuals.ISelectionId;
+import IVisualHost = powerbi.extensibility.visual.IVisualHost;
+import DataViewTableRow = powerbi.DataViewTableRow;
+import ISandboxExtendedColorPalette = powerbi.extensibility.ISandboxExtendedColorPalette;
+import { dataViewObject, dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
+
+import PrimitiveValue = powerbi.PrimitiveValue;
+import Fill = powerbi.Fill;
+import DataViewCategoryColumn = powerbi.DataViewCategoryColumn;
+import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
+import DataViewObjects = powerbi.DataViewObjects;
+import DataViewObject = powerbi.DataViewObject;
 
 import { VisualFormattingSettingsModel } from "./settings";
 
+export interface DataPoint {
+    value_x: PrimitiveValue;
+    value_y: PrimitiveValue;
+    category: PrimitiveValue;
+    color: string;
+    selectionId: ISelectionId;
+    index: number;
+}
+
 export class Visual implements IVisual {
-    private target: HTMLElement;
-    private updateCount: number;
-    private textNode: Text;
+
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
+    private host: IVisualHost;
+    private DataPoints: DataPoint[];
 
     constructor(options: VisualConstructorOptions) {
-        console.log('Visual constructor', options);
+
         this.formattingSettingsService = new FormattingSettingsService();
-        this.target = options.element;
-        this.updateCount = 0;
-        if (document) {
-            const new_p: HTMLElement = document.createElement("p");
-            new_p.appendChild(document.createTextNode("Update count:"));
-            const new_em: HTMLElement = document.createElement("em");
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
-            new_p.appendChild(new_em);
-            this.target.appendChild(new_p);
-        }
+
+        this.host = options.host;
     }
 
     public update(options: VisualUpdateOptions) {
-        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
+        // const DataPoints: DataPoint[] = []
 
-        console.log('Visual update', options);
-        if (this.textNode) {
-            this.textNode.textContent = (this.updateCount++).toString();
-        }
+        this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews?.[0]);
+        this.DataPoints = createSelectorDataPoints(options, this.host);
+        this.formattingSettings.populateColorSelector(this.DataPoints)
+
+        console.log("ok")
+
     }
 
     /**
@@ -74,4 +88,98 @@ export class Visual implements IVisual {
     public getFormattingModel(): powerbi.visuals.FormattingModel {
         return this.formattingSettingsService.buildFormattingModel(this.formattingSettings);
     }
+}
+
+function createSelectorDataPoints(options: VisualUpdateOptions, host: IVisualHost): DataPoint[] {
+    const DataPoints: DataPoint[] = []
+    const dataViews = options.dataViews;
+
+    if (!dataViews
+        || !dataViews[0]
+        || !dataViews[0].table
+    ) {
+        return DataPoints;
+    }
+
+
+
+    const dataView = options.dataViews[0];
+    const colorPalette: ISandboxExtendedColorPalette = host.colorPalette;
+
+    let table = options.dataViews[0].table;
+    let rows = table.rows;
+    let xIndex = table.columns.findIndex(column => column.roles.measure);
+    let yIndex = table.columns.findIndex(column => column.roles.measure2);
+    let legendIndex = table.columns.findIndex(column => column.roles.category);
+
+    let categories: DataViewCategoryColumn = {
+        values: [],
+        source: dataView.metadata.columns[legendIndex]
+    }
+    rows.forEach(row => {
+        categories.values.push(row[legendIndex])
+    })
+
+    dataView.table.rows.forEach((row: DataViewTableRow, rowIndex: number) => {
+        const x = row[xIndex]
+        const y = row[yIndex]
+        const legend = row[legendIndex]
+        const color = colorPalette.getColor(legend.toString()).value
+        // const color = getColumnColorByIndex(categories, rowIndex, colorPalette)
+
+        const selection: ISelectionId = host.createSelectionIdBuilder()
+            .withTable(dataView.table, rowIndex)
+            .createSelectionId();
+
+
+        DataPoints.push({
+            value_x: x,
+            value_y: y,
+            category: legend,
+            color: color,
+            selectionId: selection,
+            index: rowIndex
+        })
+
+    })
+
+    return DataPoints;
+
+}
+
+// TO DO
+// HOW TO ADAPT THIS METHOD TO GET THE COLOR EITHER FROM:
+//     PALETTE (DEFAULT BEHAVIOR)
+//     OBJECT  (WHEN DEFINED BY THE USER IN PROPERTY PANE)
+
+// dataViewObjects.getValue(category:powerbi.DataViewCategoryColumn)
+// Can't find a solution to adapt this method to a data role/mapping table
+function getColumnColorByIndex(
+    category: DataViewCategoryColumn,
+    index: number,
+    colorPalette: ISandboxExtendedColorPalette,
+): string {
+    if (colorPalette.isHighContrast) {
+        return colorPalette.background.value;
+    }
+
+    const defaultColor: Fill = {
+        solid: {
+            color: colorPalette.getColor(`${category.values[index]}`).value,
+        }
+    };
+
+    const prop: DataViewObjectPropertyIdentifier = {
+        objectName: "colorSelector",
+        propertyName: "fill"
+    };
+
+    let colorFromObjects: Fill;
+    if (category.objects?.[index]) {
+        colorFromObjects = dataViewObjects.getValue(category?.objects[index], prop);
+    }
+
+    let result = colorFromObjects?.solid.color ?? defaultColor.solid.color;
+
+    return result
 }
