@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
     "dataRoles": [
         {
@@ -79,4 +80,65 @@
         }
     ],
     "privileges": []
+=======
+{
+    "dataRoles": [
+        {
+            "displayName": "Category Data",
+            "name": "category",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Measure Data",
+            "name": "measure",
+            "kind": "GroupingOrMeasure"
+        },
+        {
+            "displayName": "Measure Data 2",
+            "name": "measure2",
+            "kind": "GroupingOrMeasure"
+        }
+    ],
+    "objects": {
+        "colorSelector": {
+            "properties": {
+                "fill": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "dataViewMappings": [
+        {
+            "table": {
+                "rows": {
+                    "select": [
+                        {
+                            "for": {
+                                "in": "category"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "measure"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "measure2"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ],
+    "privileges": []
+>>>>>>> cb0ceaaceca03c3d5d1b9bf91aa8b70c0656bf65
 }
