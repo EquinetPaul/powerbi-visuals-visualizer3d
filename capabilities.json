@@ -1,64 +1,36 @@
-<<<<<<< HEAD
 {
     "dataRoles": [
         {
-            "name": "legend",
-            "displayName": "Legend",
-            "kind": "Grouping"
-        },
-        {
-            "name": "x",
             "displayName": "X Axis",
+            "name": "x",
             "kind": "Grouping"
         },
         {
-            "name": "y",
             "displayName": "Y Axis",
+            "name": "y",
             "kind": "Grouping"
         },
         {
+            "displayName": "Z Axis",
             "name": "z",
-            "displayName": "Depth",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Legend",
+            "name": "legend",
+            "kind": "Grouping"
+        },
+        {
+            "displayName": "Group",
+            "name": "group",
             "kind": "Grouping"
         }
     ],
-    "objects": {
-        "dataPoint": {
-            "properties": {
-                "defaultColor": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "fontSize": {
-                    "type": {
-                        "formatting": {
-                            "fontSize": true
-                        }
-                    }
-                },
-                "position": {
-                    "type": {
-                        "text": true
-                    }
-                }
-            }
-        }
-    },
     "dataViewMappings": [
         {
             "table": {
                 "rows": {
                     "select": [
-                        {
-                            "for": {
-                                "in": "legend"
-                            }
-                        },
                         {
                             "for": {
                                 "in": "x"
@@ -73,33 +45,67 @@
                             "for": {
                                 "in": "z"
                             }
+                        },
+                        {
+                            "for": {
+                                "in": "legend"
+                            }
+                        },
+                        {
+                            "for": {
+                                "in": "group"
+                            }
                         }
-                    ]
+                    ],
+                    "dataReductionAlgorithm": {
+                        "window": {
+                            "count": 30000
+                        }
+                    }
                 }
             }
         }
     ],
-    "privileges": []
-=======
-{
-    "dataRoles": [
-        {
-            "displayName": "Category Data",
-            "name": "category",
-            "kind": "Grouping"
-        },
-        {
-            "displayName": "Measure Data",
-            "name": "measure",
-            "kind": "GroupingOrMeasure"
-        },
-        {
-            "displayName": "Measure Data 2",
-            "name": "measure2",
-            "kind": "GroupingOrMeasure"
-        }
-    ],
     "objects": {
+        "dataPoint": {
+            "properties": {
+                "defaultColor": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "showAllDataPoints": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "fill": {
+                    "type": {
+                        "fill": {
+                            "solid": {
+                                "color": true
+                            }
+                        }
+                    }
+                },
+                "fillRule": {
+                    "type": {
+                        "fill": {}
+                    }
+                },
+                "fontSize": {
+                    "type": {
+                        "formatting": {
+                            "fontSize": true
+                        }
+                    }
+                }
+            }
+        },
         "colorSelector": {
             "properties": {
                 "fill": {
@@ -114,31 +120,5 @@
             }
         }
     },
-    "dataViewMappings": [
-        {
-            "table": {
-                "rows": {
-                    "select": [
-                        {
-                            "for": {
-                                "in": "category"
-                            }
-                        },
-                        {
-                            "for": {
-                                "in": "measure"
-                            }
-                        },
-                        {
-                            "for": {
-                                "in": "measure2"
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    ],
     "privileges": []
->>>>>>> cb0ceaaceca03c3d5d1b9bf91aa8b70c0656bf65
 }
