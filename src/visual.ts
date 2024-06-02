@@ -116,6 +116,7 @@ export class Visual implements IVisual {
 
         let rowCount = options.dataViews[0].table.rows.length;
 
+        // TODO: change this to display a better message
         if (options.dataViews[0].metadata.segment) {
             this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
             let canFetchMore = this.host.fetchMoreData();
@@ -131,6 +132,7 @@ export class Visual implements IVisual {
         // Transform data
         this.dataPoints = this.transformTable(table)
 
+        // TODO: draw visual in a function
         // Draw visual
         var gd = document.querySelector('div');
         const legendTraces = {};
