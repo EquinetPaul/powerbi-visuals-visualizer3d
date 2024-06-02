@@ -1,7 +1,7 @@
 # powerbi-visuals-visualizer3d
 PowerBI 3D Visualizer
 
-This custom visual for Power BI allows you to create interactive 3D scatter plots using Plotly.
+This custom visual for Power BI allows you to create interactive 3D plots using Plotly.
 
 ### Setting Up Environment
 
