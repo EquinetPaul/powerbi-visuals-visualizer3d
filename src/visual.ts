@@ -79,7 +79,6 @@ export class Visual implements IVisual {
         this.host = options.host;
         this.colorPalette = options.host.colorPalette;
 
-        console.log('Visual constructor', options);
         this.target = options.element;
         this.updateCount = 0;
         this.windowsLoaded = 0;
@@ -105,8 +104,6 @@ export class Visual implements IVisual {
         // Fetch More Data
         this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
 
-        console.log('Visual update', options, this.settings);
-        console.log('Update kind', options.operationKind);
         if (options.operationKind === VisualDataChangeOperationKind.Create) {
             this.windowsLoaded = 1;
         }
@@ -132,6 +129,39 @@ export class Visual implements IVisual {
         // Transform data
         this.dataPoints = this.transformTable(table)
 
+        let tableInformations = {
+            xColumnName : "",
+            yColumnName : "",
+            zColumnName : "",
+            legendColumnName : "",
+            groupColumnName: ""
+        }
+
+        const xIndex = table.columns.findIndex(column => column.roles.x);
+        const yIndex = table.columns.findIndex(column => column.roles.y);
+        const zIndex = table.columns.findIndex(column => column.roles.z);
+        const legendIndex = table.columns.findIndex(column => column.roles.legend);
+        const groupIndex = table.columns.findIndex(column => column.roles.group);
+
+        console.log(xIndex, yIndex, zIndex, legendIndex, groupIndex)
+        console.log("ok1")
+
+        const xColumnName = table.columns.find(column => column.roles.x).displayName
+        const yColumnName = table.columns.find(column => column.roles.y).displayName
+        const zColumnName = table.columns.find(column => column.roles.z).displayName
+        const legendColumnName = table.columns.find(column => column.roles.legend).displayName
+        const groupColumnName = (groupIndex != -1) ? table.columns.find(column => column.roles.group).displayName : ""
+
+        console.log("ok2")
+
+        tableInformations.xColumnName =  xColumnName
+        tableInformations.yColumnName =  yColumnName
+        tableInformations.zColumnName =  zColumnName
+        tableInformations.legendColumnName =  legendColumnName
+        tableInformations.groupColumnName = groupColumnName
+
+        console.log("ok3")
+
         // TODO: draw visual in a function
         // Draw visual
         var gd = document.querySelector('div');
@@ -156,6 +186,7 @@ export class Visual implements IVisual {
 
         // Préparer les données pour Plotly après avoir trié
         const traces = Object.keys(legendTraces).map(legend => {
+            const group = (groupIndex != -1) ? legendTraces[legend][0].legend : "" 
             const trace = {
                 x: [],
                 y: [],
@@ -163,19 +194,25 @@ export class Visual implements IVisual {
                 mode: 'lines',
                 type: 'scatter3d',
                 name: legend,
-                legendgroup: legendTraces[legend][0].group,
+                legendgroup: group ,
                 text: [],
                 marker: { size: 3 },
                 line: {
-                    color: hexToRGBString(this.colorPalette.getColor(legendTraces[legend][0].legend).value)
-                }
+                    color: hexToRGBString(this.colorPalette.getColor(legend).value)
+                },
+                hovertemplate:
+                    `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>`+
+                    `<b>${tableInformations.groupColumnName} </b> ${group}<br>`+
+                    `<b>${tableInformations.zColumnName}:</b> `+ "%{z}</br>" +
+                    `<b>${tableInformations.xColumnName}:</b> `+ "%{x}</br>" +
+                    `<b>${tableInformations.yColumnName}:</b> `+ "%{y}</br>"
             };
 
             legendTraces[legend].forEach(point => {
                 trace.x.push(point.x);
                 trace.y.push(point.y);
                 trace.z.push(point.z);
-                trace.text.push(point.legend);
+                // trace.text.push(point.legend);
             });
 
             return trace;
@@ -189,10 +226,22 @@ export class Visual implements IVisual {
                 // yaxis: { title: 'Y Axis' },
                 // zaxis: { title: 'Z Axis' }
             },
-            showlegend: true
+            showlegend: true,
+            legend: {"orientation": "h"}, // TODO: formatting parameter
+            margin: {
+                l: 0,
+                r: 0,
+                b: 0,
+                t: 0,
+                pad: 0
+            },
+            automargin: true,
         };
 
-        Plotly.newPlot(gd, traces, layout);
+        Plotly.newPlot(gd, traces, layout,
+            { displaylogo: false }, // Hide Plotly Logo
+            { responsive: true }
+        );
     }
 
     /**
@@ -206,11 +255,28 @@ export class Visual implements IVisual {
     public transformTable(table: powerbi.DataViewTable): dataPoint[] {
         const dataPoints: dataPoint[] = []
 
+        let tableInformations = {
+            xColumnName : "",
+            yColumnName : "",
+            zColumnName : "",
+            legendColumnName : ""
+        }
+
         const xIndex = table.columns.findIndex(column => column.roles.x);
         const yIndex = table.columns.findIndex(column => column.roles.y);
         const zIndex = table.columns.findIndex(column => column.roles.z);
         const legendIndex = table.columns.findIndex(column => column.roles.legend);
         const groupIndex = table.columns.findIndex(column => column.roles.group);
+
+        const xColumnName = table.columns.find(column => column.roles.x).displayName
+        const yColumnName = table.columns.find(column => column.roles.y).displayName
+        const zColumnName = table.columns.find(column => column.roles.z).displayName
+        const legendColumnName = table.columns.find(column => column.roles.legend).displayName
+
+        tableInformations.xColumnName =  xColumnName
+        tableInformations.yColumnName =  yColumnName
+        tableInformations.zColumnName =  zColumnName
+        tableInformations.legendColumnName =  legendColumnName
 
         table.rows.forEach((row, rowIndex) => {
             const xValue = row[xIndex];
@@ -232,7 +298,8 @@ export class Visual implements IVisual {
             })
         })
 
-        return dataPoints;
+        return dataPoints
+        
     }
 
     private static parseSettings(dataView: powerbi.DataView): VisualSettings {
