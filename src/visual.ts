@@ -198,7 +198,7 @@ export class Visual implements IVisual {
                 text: [],
                 marker: { size: 3 },
                 line: {
-                    color: hexToRGBString(this.colorPalette.getColor(legend).value)
+                    color: hexToRGBString(this.colorPalette.getColor(group).value)
                 },
                 hovertemplate:
                     `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>`+
@@ -227,7 +227,7 @@ export class Visual implements IVisual {
                 // zaxis: { title: 'Z Axis' }
             },
             showlegend: true,
-            legend: {"orientation": "h"}, // TODO: formatting parameter
+            // legend: {"orientation": "h"}, // TODO: formatting parameter
             margin: {
                 l: 0,
                 r: 0,
