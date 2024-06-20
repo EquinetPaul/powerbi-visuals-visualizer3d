@@ -105,19 +105,6 @@
                     }
                 }
             }
-        },
-        "colorSelector": {
-            "properties": {
-                "fill": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                }
-            }
         }
     },
     "privileges": []
