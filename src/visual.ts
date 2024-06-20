@@ -143,24 +143,17 @@ export class Visual implements IVisual {
         const legendIndex = table.columns.findIndex(column => column.roles.legend);
         const groupIndex = table.columns.findIndex(column => column.roles.group);
 
-        console.log(xIndex, yIndex, zIndex, legendIndex, groupIndex)
-        console.log("ok1")
-
         const xColumnName = table.columns.find(column => column.roles.x).displayName
         const yColumnName = table.columns.find(column => column.roles.y).displayName
         const zColumnName = table.columns.find(column => column.roles.z).displayName
         const legendColumnName = table.columns.find(column => column.roles.legend).displayName
         const groupColumnName = (groupIndex != -1) ? table.columns.find(column => column.roles.group).displayName : ""
 
-        console.log("ok2")
-
         tableInformations.xColumnName =  xColumnName
         tableInformations.yColumnName =  yColumnName
         tableInformations.zColumnName =  zColumnName
         tableInformations.legendColumnName =  legendColumnName
         tableInformations.groupColumnName = groupColumnName
-
-        console.log("ok3")
 
         // TODO: draw visual in a function
         // Draw visual
@@ -222,19 +215,19 @@ export class Visual implements IVisual {
         const layout = {
             // title: '3D Scatter Plot',
             scene: {
-                // xaxis: { title: 'X Axis' },
-                // yaxis: { title: 'Y Axis' },
-                // zaxis: { title: 'Z Axis' }
+                xaxis: { title: xColumnName },
+                yaxis: { title: yColumnName },
+                zaxis: { title: zColumnName }
             },
             showlegend: true,
             // legend: {"orientation": "h"}, // TODO: formatting parameter
-            margin: {
-                l: 0,
-                r: 0,
-                b: 0,
-                t: 0,
-                pad: 0
-            },
+            // margin: {
+            //     l: 0,
+            //     r: 0,
+            //     b: 0,
+            //     t: 0,
+            //     pad: 0
+            // },
             automargin: true,
         };
 

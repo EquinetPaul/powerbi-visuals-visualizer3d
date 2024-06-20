@@ -39,15 +39,6 @@ import { dataViewObjectsParser } from 'powerbi-visuals-utils-dataviewutils';
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 
 export class VisualSettings extends DataViewObjectsParser { }
-
-// TODO: 1. inputs to define manually style of each legend (color, type of traces etc.) since we use table mapping
-
-class ColorSelectorCardSettings extends FormattingSettingsCard {
-    name: string = "colorSelector";
-    displayName: string = "Data Colors";
-    slices: FormattingSettingsSlice[] = [];
-}
-
 /**
  * Data Point Formatting Card
  */
@@ -94,8 +85,7 @@ class DataPointCardSettings extends FormattingSettingsCard {
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     // Create formatting settings model formatting cards
     dataPointCard = new DataPointCardSettings();
-    colorSelector = new ColorSelectorCardSettings();
 
-    cards = [this.dataPointCard, this.colorSelector];
+    cards = [this.dataPointCard];
     
 }
