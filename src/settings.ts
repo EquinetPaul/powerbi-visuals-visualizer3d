@@ -39,53 +39,35 @@ import { dataViewObjectsParser } from 'powerbi-visuals-utils-dataviewutils';
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
 
 export class VisualSettings extends DataViewObjectsParser { }
-/**
- * Data Point Formatting Card
- */
-class DataPointCardSettings extends FormattingSettingsCard {
-    defaultColor = new formattingSettings.ColorPicker({
-        name: "defaultColor",
-        displayName: "Default color",
-        value: { value: "" }
+
+class AxisCardSettings extends FormattingSettingsCard {
+
+    revertXAxis = new formattingSettings.ToggleSwitch({
+        name: "revertXAxis",
+        displayName: "Revert X Axis",
+        value: false
     });
 
-    showAllDataPoints = new formattingSettings.ToggleSwitch({
-        name: "showAllDataPoints",
-        displayName: "Show all",
-        value: true
+    revertYAxis = new formattingSettings.ToggleSwitch({
+        name: "revertYAxis",
+        displayName: "Revert Y Axis",
+        value: false
     });
 
-    fill = new formattingSettings.ColorPicker({
-        name: "fill",
-        displayName: "Fill",
-        value: { value: "" }
+    revertZAxis = new formattingSettings.ToggleSwitch({
+        name: "revertZAxis",
+        displayName: "Revert Z Axis",
+        value: false
     });
 
-    fillRule = new formattingSettings.ColorPicker({
-        name: "fillRule",
-        displayName: "Color saturation",
-        value: { value: "" }
-    });
-
-    fontSize = new formattingSettings.NumUpDown({
-        name: "fontSize",
-        displayName: "Text Size",
-        value: 12
-    });
-
-    name: string = "dataPoint";
-    displayName: string = "Data colors";
-    slices: Array<FormattingSettingsSlice> = [this.defaultColor, this.showAllDataPoints, this.fill, this.fillRule, this.fontSize];
+    name: string = "axis";
+    displayName: string = "Axis";
+    slices: Array<FormattingSettingsSlice> = [this.revertXAxis, this.revertYAxis, this.revertZAxis];
 }
 
-/**
-* visual settings model class
-*
-*/
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
-    // Create formatting settings model formatting cards
-    dataPointCard = new DataPointCardSettings();
+    axisCardSettings = new AxisCardSettings();
 
-    cards = [this.dataPointCard];
+    cards = [this.axisCardSettings];
     
 }

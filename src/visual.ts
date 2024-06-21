@@ -180,6 +180,7 @@ export class Visual implements IVisual {
         // Préparer les données pour Plotly après avoir trié
         const traces = Object.keys(legendTraces).map(legend => {
             const group = (groupIndex != -1) ? legendTraces[legend][0].legend : "" 
+            const color = group != "" ? hexToRGBString(this.colorPalette.getColor(group).value) : hexToRGBString(this.colorPalette.getColor(legend).value)
             const trace = {
                 x: [],
                 y: [],
@@ -191,7 +192,7 @@ export class Visual implements IVisual {
                 text: [],
                 marker: { size: 3 },
                 line: {
-                    color: hexToRGBString(this.colorPalette.getColor(group).value)
+                    color: color
                 },
                 hovertemplate:
                     `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>`+
@@ -212,12 +213,22 @@ export class Visual implements IVisual {
         });
 
         // Définir la mise en page du graphique
+
         const layout = {
             // title: '3D Scatter Plot',
             scene: {
-                xaxis: { title: xColumnName },
-                yaxis: { title: yColumnName },
-                zaxis: { title: zColumnName }
+                xaxis: { 
+                    title: xColumnName,
+                    autorange: this.formattingSettings.axisCardSettings.revertXAxis.value ? 'reversed' : 'true'
+                },
+                yaxis: { 
+                    title: yColumnName,
+                    autorange: this.formattingSettings.axisCardSettings.revertYAxis.value ? 'reversed' : 'true'
+                },
+                zaxis: { 
+                    title: zColumnName,
+                    autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
+                }
             },
             showlegend: true,
             // legend: {"orientation": "h"}, // TODO: formatting parameter
@@ -231,10 +242,10 @@ export class Visual implements IVisual {
             automargin: true,
         };
 
-        Plotly.newPlot(gd, traces, layout,
-            { displaylogo: false }, // Hide Plotly Logo
-            { responsive: true }
-        );
+            Plotly.newPlot(gd, traces, layout,
+                { displaylogo: false }, // Hide Plotly Logo
+                { responsive: true }
+            );
     }
 
     /**

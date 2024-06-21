@@ -67,41 +67,21 @@
         }
     ],
     "objects": {
-        "dataPoint": {
+        "axis": {
             "properties": {
-                "defaultColor": {
-                    "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
-                    }
-                },
-                "showAllDataPoints": {
+                "revertXAxis": {
                     "type": {
                         "bool": true
                     }
                 },
-                "fill": {
+                "revertYAxis": {
                     "type": {
-                        "fill": {
-                            "solid": {
-                                "color": true
-                            }
-                        }
+                        "bool": true
                     }
                 },
-                "fillRule": {
+                "revertZAxis": {
                     "type": {
-                        "fill": {}
-                    }
-                },
-                "fontSize": {
-                    "type": {
-                        "formatting": {
-                            "fontSize": true
-                        }
+                        "bool": true
                     }
                 }
             }
