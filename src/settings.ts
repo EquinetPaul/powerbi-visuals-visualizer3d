@@ -32,6 +32,9 @@ import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
 import ColorPicker = formattingSettings.ColorPicker;
+import NumUpDown = formattingSettings.NumUpDown;
+import AutoDropdown = formattingSettings.AutoDropdown;
+import powerbiVisualsApi from "powerbi-visuals-api";
 
 import { dataPoint } from "./visual";
 
@@ -65,9 +68,39 @@ class AxisCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.revertXAxis, this.revertYAxis, this.revertZAxis];
 }
 
+class StyleCardSettings extends FormattingSettingsCard {
+
+    elementStyle = new AutoDropdown({
+        name: "elementStyle",
+        displayName: "Element",
+        value: "lines+markers"
+    });
+
+    markerSize = new NumUpDown({
+        name: "markerSize",
+        displayName: "Marker Size",
+        value: 2,
+        options: {
+            minValue: {
+                type: powerbiVisualsApi.visuals.ValidatorType.Min,
+                value: 0,
+            },
+            maxValue: {
+                type: powerbiVisualsApi.visuals.ValidatorType.Max,
+                value: 10,
+            }
+        }
+    });
+
+    name: string = "style";
+    displayName: string = "Style";
+    slices: Array<FormattingSettingsSlice> = [this.elementStyle, this.markerSize];
+}
+
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     axisCardSettings = new AxisCardSettings();
+    styleCardSettings = new StyleCardSettings();
 
-    cards = [this.axisCardSettings];
+    cards = [this.axisCardSettings, this.styleCardSettings];
     
 }

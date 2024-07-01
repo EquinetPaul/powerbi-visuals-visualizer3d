@@ -101,28 +101,28 @@ export class Visual implements IVisual {
             return;
         }
 
-        // Fetch More Data
-        this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
+        // // Fetch More Data
+        // this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
 
-        if (options.operationKind === VisualDataChangeOperationKind.Create) {
-            this.windowsLoaded = 1;
-        }
-        if (options.operationKind === VisualDataChangeOperationKind.Append) {
-            this.windowsLoaded += 1;
-        }
+        // if (options.operationKind === VisualDataChangeOperationKind.Create) {
+        //     this.windowsLoaded = 1;
+        // }
+        // if (options.operationKind === VisualDataChangeOperationKind.Append) {
+        //     this.windowsLoaded += 1;
+        // }
 
-        let rowCount = options.dataViews[0].table.rows.length;
+        // let rowCount = options.dataViews[0].table.rows.length;
 
-        // TODO: change this to display a better message
-        if (options.dataViews[0].metadata.segment) {
-            this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
-            let canFetchMore = this.host.fetchMoreData();
-            if (!canFetchMore) {
-                this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
-            }
-        } else {
-            this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
-        }
+        // // TODO: change this to display a better message
+        // if (options.dataViews[0].metadata.segment) {
+        //     this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
+        //     let canFetchMore = this.host.fetchMoreData();
+        //     if (!canFetchMore) {
+        //         this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
+        //     }
+        // } else {
+        //     this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
+        // }
 
         const table = options.dataViews[0].table;
 
@@ -137,12 +137,7 @@ export class Visual implements IVisual {
             groupColumnName: ""
         }
 
-        const xIndex = table.columns.findIndex(column => column.roles.x);
-        const yIndex = table.columns.findIndex(column => column.roles.y);
-        const zIndex = table.columns.findIndex(column => column.roles.z);
-        const legendIndex = table.columns.findIndex(column => column.roles.legend);
         const groupIndex = table.columns.findIndex(column => column.roles.group);
-
         const xColumnName = table.columns.find(column => column.roles.x).displayName
         const yColumnName = table.columns.find(column => column.roles.y).displayName
         const zColumnName = table.columns.find(column => column.roles.z).displayName
@@ -162,7 +157,6 @@ export class Visual implements IVisual {
 
         // Parcourir les données pour les organiser par légende
         this.dataPoints.forEach(point => {
-            const group = point.group;
             const legend = point.legend as string;
 
             if (!legendTraces[legend]) {
@@ -177,26 +171,27 @@ export class Visual implements IVisual {
             legendTraces[legend].sort((a, b) => a.z - b.z);
         });
 
+        console.log(this.dataPoints)
+
         // Préparer les données pour Plotly après avoir trié
         const traces = Object.keys(legendTraces).map(legend => {
-            const group = (groupIndex != -1) ? legendTraces[legend][0].legend : "" 
-            const color = group != "" ? hexToRGBString(this.colorPalette.getColor(group).value) : hexToRGBString(this.colorPalette.getColor(legend).value)
+            const color = hexToRGBString(this.colorPalette.getColor(legend).value)
             const trace = {
                 x: [],
                 y: [],
                 z: [],
-                mode: 'lines',
+                mode: this.formattingSettings.styleCardSettings.elementStyle.value,
                 type: 'scatter3d',
                 name: legend,
-                legendgroup: group ,
+                // legendgroup: group ,
                 text: [],
-                marker: { size: 3 },
+                marker: { size: this.formattingSettings.styleCardSettings.markerSize.value },
                 line: {
                     color: color
                 },
                 hovertemplate:
                     `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>`+
-                    `<b>${tableInformations.groupColumnName} </b> ${group}<br>`+
+                    // `<b>${tableInformations.groupColumnName} </b> ${group}<br>`+
                     `<b>${tableInformations.zColumnName}:</b> `+ "%{z}</br>" +
                     `<b>${tableInformations.xColumnName}:</b> `+ "%{x}</br>" +
                     `<b>${tableInformations.yColumnName}:</b> `+ "%{y}</br>"
@@ -206,7 +201,7 @@ export class Visual implements IVisual {
                 trace.x.push(point.x);
                 trace.y.push(point.y);
                 trace.z.push(point.z);
-                // trace.text.push(point.legend);
+                trace.text.push(point.legend);
             });
 
             return trace;
@@ -230,7 +225,7 @@ export class Visual implements IVisual {
                     autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
                 }
             },
-            showlegend: true,
+            // showlegend: true,
             // legend: {"orientation": "h"}, // TODO: formatting parameter
             // margin: {
             //     l: 0,
@@ -239,7 +234,7 @@ export class Visual implements IVisual {
             //     t: 0,
             //     pad: 0
             // },
-            automargin: true,
+            // automargin: true,
         };
 
             Plotly.newPlot(gd, traces, layout,
@@ -259,28 +254,11 @@ export class Visual implements IVisual {
     public transformTable(table: powerbi.DataViewTable): dataPoint[] {
         const dataPoints: dataPoint[] = []
 
-        let tableInformations = {
-            xColumnName : "",
-            yColumnName : "",
-            zColumnName : "",
-            legendColumnName : ""
-        }
-
         const xIndex = table.columns.findIndex(column => column.roles.x);
         const yIndex = table.columns.findIndex(column => column.roles.y);
         const zIndex = table.columns.findIndex(column => column.roles.z);
         const legendIndex = table.columns.findIndex(column => column.roles.legend);
         const groupIndex = table.columns.findIndex(column => column.roles.group);
-
-        const xColumnName = table.columns.find(column => column.roles.x).displayName
-        const yColumnName = table.columns.find(column => column.roles.y).displayName
-        const zColumnName = table.columns.find(column => column.roles.z).displayName
-        const legendColumnName = table.columns.find(column => column.roles.legend).displayName
-
-        tableInformations.xColumnName =  xColumnName
-        tableInformations.yColumnName =  yColumnName
-        tableInformations.zColumnName =  zColumnName
-        tableInformations.legendColumnName =  legendColumnName
 
         table.rows.forEach((row, rowIndex) => {
             const xValue = row[xIndex];

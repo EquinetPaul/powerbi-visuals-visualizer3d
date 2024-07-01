@@ -85,6 +85,33 @@
                     }
                 }
             }
+        },
+        "style": {
+            "properties": {
+                "elementStyle": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "markers",
+                                "displayName": "Scatter"
+                            },
+                            {
+                                "value": "lines",
+                                "displayName": "Line"
+                            },
+                            {
+                                "value": "lines+markers",
+                                "displayName": "Line & Scatter"
+                            }
+                        ]
+                    }
+                },
+                "markerSize": {
+                    "type": {
+                        "integer": true
+                    }
+                }
+            }
         }
     },
     "privileges": []
