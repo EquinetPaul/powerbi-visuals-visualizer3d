@@ -71,7 +71,6 @@ export class Visual implements IVisual {
     private formattingSettingsService: FormattingSettingsService;
     private host: IVisualHost;
     private dataPoints: dataPoint[] = []
-    private dataPointsUniqueLegend: dataPoint[]
     private localizationManager: ILocalizationManager;
     private colorPalette: IColorPalette;
 
@@ -91,14 +90,14 @@ export class Visual implements IVisual {
         this.updateCount = 0;
         this.windowsLoaded = 0;
         this.host = options.host;
-        if (typeof document !== 'undefined') {
-            const new_p: HTMLElement = document.createElement('p');
-            const new_em: HTMLElement = document.createElement('em');
-            this.textNode = document.createTextNode(this.updateCount.toString());
-            new_em.appendChild(this.textNode);
-            new_p.appendChild(new_em);
-            this.target.appendChild(new_p);
-        }
+        // if (typeof document !== 'undefined') {
+        //     const new_p: HTMLElement = document.createElement('p');
+        //     const new_em: HTMLElement = document.createElement('em');
+        //     this.textNode = document.createTextNode(this.updateCount.toString());
+        //     new_em.appendChild(this.textNode);
+        //     new_p.appendChild(new_em);
+        //     this.target.appendChild(new_p);
+        // }
     }
 
     public getTableInformations(table: powerbi.DataViewTable) {
@@ -155,7 +154,7 @@ export class Visual implements IVisual {
                 mode: this.formattingSettings.styleCardSettings.elementStyle.value,
                 type: 'scatter3d',
                 name: legend,
-                // legendgroup: group ,
+                legendgroup: "",
                 text: [],
                 marker: { size: this.formattingSettings.styleCardSettings.markerSize.value },
                 line: {
@@ -174,10 +173,13 @@ export class Visual implements IVisual {
                 trace.y.push(point.y);
                 trace.z.push(point.z);
                 trace.text.push(point.legend);
+                trace.legendgroup = point.group;
             });
 
             return trace;
         });
+
+        
 
         return traces
     }
