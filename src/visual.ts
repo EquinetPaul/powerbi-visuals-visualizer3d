@@ -58,6 +58,14 @@ export interface dataPoint {
     selection: ISelectionId
 }
 
+interface tableInformations {
+    xColumnName: string,
+    yColumnName: string,
+    zColumnName: string,
+    legendColumnName: string,
+    groupColumnName: string
+}
+
 export class Visual implements IVisual {
     private formattingSettings: VisualFormattingSettingsModel;
     private formattingSettingsService: FormattingSettingsService;
@@ -92,6 +100,87 @@ export class Visual implements IVisual {
             new_p.appendChild(new_em);
             this.target.appendChild(new_p);
         }
+    }
+
+    public getTableInformations(table: powerbi.DataViewTable) {
+        let tableInformations = {
+            xColumnName: "",
+            yColumnName: "",
+            zColumnName: "",
+            legendColumnName: "",
+            groupColumnName: ""
+        }
+
+        const groupIndex = table.columns.findIndex(column => column.roles.group);
+        const xColumnName = table.columns.find(column => column.roles.x).displayName
+        const yColumnName = table.columns.find(column => column.roles.y).displayName
+        const zColumnName = table.columns.find(column => column.roles.z).displayName
+        const legendColumnName = table.columns.find(column => column.roles.legend).displayName
+        const groupColumnName = (groupIndex != -1) ? table.columns.find(column => column.roles.group).displayName : ""
+
+        tableInformations.xColumnName = xColumnName
+        tableInformations.yColumnName = yColumnName
+        tableInformations.zColumnName = zColumnName
+        tableInformations.legendColumnName = legendColumnName
+        tableInformations.groupColumnName = groupColumnName
+
+        return tableInformations
+    }
+
+    public createTraces(tableInformations: tableInformations) {
+        const legendTraces = {};
+
+        // Parcourir les données pour les organiser par légende
+        this.dataPoints.forEach(point => {
+            const legend = point.legend as string;
+
+            if (!legendTraces[legend]) {
+                legendTraces[legend] = [];
+            }
+
+            legendTraces[legend].push(point);
+        });
+
+        // Trier les points par valeur de Z pour chaque légende
+        Object.keys(legendTraces).forEach(legend => {
+            legendTraces[legend].sort((a, b) => a.z - b.z);
+        });
+
+        // Préparer les données pour Plotly après avoir trié
+        const traces = Object.keys(legendTraces).map(legend => {
+            const color = hexToRGBString(this.colorPalette.getColor(legend).value)
+            const trace = {
+                x: [],
+                y: [],
+                z: [],
+                mode: this.formattingSettings.styleCardSettings.elementStyle.value,
+                type: 'scatter3d',
+                name: legend,
+                // legendgroup: group ,
+                text: [],
+                marker: { size: this.formattingSettings.styleCardSettings.markerSize.value },
+                line: {
+                    color: color
+                },
+                hovertemplate:
+                    `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>` +
+                    // `<b>${tableInformations.groupColumnName} </b> ${group}<br>`+
+                    `<b>${tableInformations.zColumnName}:</b> ` + "%{z}</br>" +
+                    `<b>${tableInformations.xColumnName}:</b> ` + "%{x}</br>" +
+                    `<b>${tableInformations.yColumnName}:</b> ` + "%{y}</br>"
+            };
+
+            legendTraces[legend].forEach(point => {
+                trace.x.push(point.x);
+                trace.y.push(point.y);
+                trace.z.push(point.z);
+                trace.text.push(point.legend);
+            });
+
+            return trace;
+        });
+
+        return traces
     }
 
     public update(options: VisualUpdateOptions) {
@@ -129,104 +218,35 @@ export class Visual implements IVisual {
         // Transform data
         this.dataPoints = this.transformTable(table)
 
-        let tableInformations = {
-            xColumnName : "",
-            yColumnName : "",
-            zColumnName : "",
-            legendColumnName : "",
-            groupColumnName: ""
-        }
+        const tableInformations = this.getTableInformations(table)
 
-        const groupIndex = table.columns.findIndex(column => column.roles.group);
-        const xColumnName = table.columns.find(column => column.roles.x).displayName
-        const yColumnName = table.columns.find(column => column.roles.y).displayName
-        const zColumnName = table.columns.find(column => column.roles.z).displayName
-        const legendColumnName = table.columns.find(column => column.roles.legend).displayName
-        const groupColumnName = (groupIndex != -1) ? table.columns.find(column => column.roles.group).displayName : ""
-
-        tableInformations.xColumnName =  xColumnName
-        tableInformations.yColumnName =  yColumnName
-        tableInformations.zColumnName =  zColumnName
-        tableInformations.legendColumnName =  legendColumnName
-        tableInformations.groupColumnName = groupColumnName
+        const traces = this.createTraces(tableInformations)
 
         // TODO: draw visual in a function
         // Draw visual
         var gd = document.querySelector('div');
-        const legendTraces = {};
-
-        // Parcourir les données pour les organiser par légende
-        this.dataPoints.forEach(point => {
-            const legend = point.legend as string;
-
-            if (!legendTraces[legend]) {
-                legendTraces[legend] = [];
-            }
-
-            legendTraces[legend].push(point);
-        });
-
-        // Trier les points par valeur de Z pour chaque légende
-        Object.keys(legendTraces).forEach(legend => {
-            legendTraces[legend].sort((a, b) => a.z - b.z);
-        });
-
-        console.log(this.dataPoints)
-
-        // Préparer les données pour Plotly après avoir trié
-        const traces = Object.keys(legendTraces).map(legend => {
-            const color = hexToRGBString(this.colorPalette.getColor(legend).value)
-            const trace = {
-                x: [],
-                y: [],
-                z: [],
-                mode: this.formattingSettings.styleCardSettings.elementStyle.value,
-                type: 'scatter3d',
-                name: legend,
-                // legendgroup: group ,
-                text: [],
-                marker: { size: this.formattingSettings.styleCardSettings.markerSize.value },
-                line: {
-                    color: color
-                },
-                hovertemplate:
-                    `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>`+
-                    // `<b>${tableInformations.groupColumnName} </b> ${group}<br>`+
-                    `<b>${tableInformations.zColumnName}:</b> `+ "%{z}</br>" +
-                    `<b>${tableInformations.xColumnName}:</b> `+ "%{x}</br>" +
-                    `<b>${tableInformations.yColumnName}:</b> `+ "%{y}</br>"
-            };
-
-            legendTraces[legend].forEach(point => {
-                trace.x.push(point.x);
-                trace.y.push(point.y);
-                trace.z.push(point.z);
-                trace.text.push(point.legend);
-            });
-
-            return trace;
-        });
 
         // Définir la mise en page du graphique
-
         const layout = {
             // title: '3D Scatter Plot',
             scene: {
-                xaxis: { 
-                    title: xColumnName,
+                xaxis: {
+                    title: tableInformations.xColumnName,
                     autorange: this.formattingSettings.axisCardSettings.revertXAxis.value ? 'reversed' : 'true'
                 },
-                yaxis: { 
-                    title: yColumnName,
+                yaxis: {
+                    title: tableInformations.yColumnName,
                     autorange: this.formattingSettings.axisCardSettings.revertYAxis.value ? 'reversed' : 'true'
                 },
-                zaxis: { 
-                    title: zColumnName,
+                zaxis: {
+                    title: tableInformations.zColumnName,
                     autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
                 }
             },
-            // showlegend: true,
-            // legend: {"orientation": "h"}, // TODO: formatting parameter
+            showlegend: true,
+            legend: {
+                "orientation": "h"
+            },
             // margin: {
             //     l: 0,
             //     r: 0,
@@ -237,10 +257,10 @@ export class Visual implements IVisual {
             // automargin: true,
         };
 
-            Plotly.newPlot(gd, traces, layout,
-                { displaylogo: false }, // Hide Plotly Logo
-                { responsive: true }
-            );
+        Plotly.newPlot(gd, traces, layout,
+            { displaylogo: false }, // Hide Plotly Logo
+            { responsive: true }
+        );
     }
 
     /**
@@ -281,7 +301,7 @@ export class Visual implements IVisual {
         })
 
         return dataPoints
-        
+
     }
 
     private static parseSettings(dataView: powerbi.DataView): VisualSettings {
