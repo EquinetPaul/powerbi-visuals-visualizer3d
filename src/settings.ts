@@ -97,10 +97,30 @@ class StyleCardSettings extends FormattingSettingsCard {
     slices: Array<FormattingSettingsSlice> = [this.elementStyle, this.markerSize];
 }
 
+class LegendCardSettings extends FormattingSettingsCard {
+
+    legendOrientation = new AutoDropdown({
+        name: "legendOrientation",
+        displayName: "Orientation",
+        value: "l"
+    });
+
+    show = new formattingSettings.ToggleSwitch({
+        name: "show",
+        displayName: "Show",
+        value: true
+    });
+
+    name: string = "legend";
+    displayName: string = "Legend";
+    slices: Array<FormattingSettingsSlice> = [this.show, this.legendOrientation];
+}
+
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     axisCardSettings = new AxisCardSettings();
     styleCardSettings = new StyleCardSettings();
+    legendCardSettings = new LegendCardSettings();
 
-    cards = [this.axisCardSettings, this.styleCardSettings];
+    cards = [this.axisCardSettings, this.styleCardSettings, this.legendCardSettings];
     
 }

@@ -86,6 +86,29 @@
                 }
             }
         },
+        "legend": {
+            "properties": {
+                "legendOrientation": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "h",
+                                "displayName": "Line"
+                            },
+                            {
+                                "value": "l",
+                                "displayName": "Column"
+                            }
+                        ]
+                    }
+                },
+                "show": {
+                    "type": {
+                        "bool": true
+                    }
+                }
+            }
+        },
         "style": {
             "properties": {
                 "elementStyle": {

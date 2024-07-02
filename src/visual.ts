@@ -93,7 +93,6 @@ export class Visual implements IVisual {
         this.host = options.host;
         if (typeof document !== 'undefined') {
             const new_p: HTMLElement = document.createElement('p');
-            new_p.appendChild(document.createTextNode('Message:'));
             const new_em: HTMLElement = document.createElement('em');
             this.textNode = document.createTextNode(this.updateCount.toString());
             new_em.appendChild(this.textNode);
@@ -191,27 +190,27 @@ export class Visual implements IVisual {
         }
 
         // // Fetch More Data
-        // this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
+        this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
 
-        // if (options.operationKind === VisualDataChangeOperationKind.Create) {
-        //     this.windowsLoaded = 1;
-        // }
-        // if (options.operationKind === VisualDataChangeOperationKind.Append) {
-        //     this.windowsLoaded += 1;
-        // }
+        if (options.operationKind === VisualDataChangeOperationKind.Create) {
+            this.windowsLoaded = 1;
+        }
+        if (options.operationKind === VisualDataChangeOperationKind.Append) {
+            this.windowsLoaded += 1;
+        }
 
-        // let rowCount = options.dataViews[0].table.rows.length;
+        let rowCount = options.dataViews[0].table.rows.length;
 
-        // // TODO: change this to display a better message
-        // if (options.dataViews[0].metadata.segment) {
-        //     this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
-        //     let canFetchMore = this.host.fetchMoreData();
-        //     if (!canFetchMore) {
-        //         this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
-        //     }
-        // } else {
-        //     this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
-        // }
+        // TODO: change this to display a better message
+        if (options.dataViews[0].metadata.segment) {
+            // this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
+            let canFetchMore = this.host.fetchMoreData();
+            if (!canFetchMore) {
+                // this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
+            }
+        } else {
+            // this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
+        }
 
         const table = options.dataViews[0].table;
 
@@ -243,23 +242,23 @@ export class Visual implements IVisual {
                     autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
                 }
             },
-            showlegend: true,
+            showlegend: this.formattingSettings.legendCardSettings.show.value,
             legend: {
-                "orientation": "h"
+                "orientation": this.formattingSettings.legendCardSettings.legendOrientation.value,
             },
-            // margin: {
-            //     l: 0,
-            //     r: 0,
-            //     b: 0,
-            //     t: 0,
-            //     pad: 0
-            // },
-            // automargin: true,
+            margin: {
+                l: 0,
+                r: 0,
+                b: 0,
+                t: 0,
+                pad: 0
+            },
+            automargin: true,
         };
 
         Plotly.newPlot(gd, traces, layout,
             { displaylogo: false }, // Hide Plotly Logo
-            { responsive: true }
+            // { responsive: true }
         );
     }
 
@@ -285,7 +284,7 @@ export class Visual implements IVisual {
             const yValue = row[yIndex];
             const zValue = row[zIndex];
             const legendValue = row[legendIndex];
-            const groupValue = row[groupIndex];
+            const groupValue = row[groupIndex] ?? "";
             const selection: ISelectionId = this.host.createSelectionIdBuilder()
                 .withTable(table, rowIndex)
                 .createSelectionId();
