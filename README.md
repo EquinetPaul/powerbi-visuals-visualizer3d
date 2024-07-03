@@ -25,6 +25,7 @@ pbiviz start
 ```
 
 ## v1.0.0.0
+- Use Plotly.JS
 - 3 fields for coordinates: **X Axis**, **Y Axis** and **Z Axis**
 - 2 fields to group the coordinates: **Legend** (one trace per legend) and **Group** that groups the linked legends
 - Use of the fetchMoreData API to collect more data
