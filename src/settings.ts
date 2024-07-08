@@ -73,7 +73,7 @@ class StyleCardSettings extends FormattingSettingsCard {
     elementStyle = new AutoDropdown({
         name: "elementStyle",
         displayName: "Element",
-        value: "lines+markers"
+        value: "lines"
     });
 
     markerSize = new NumUpDown({
@@ -92,18 +92,40 @@ class StyleCardSettings extends FormattingSettingsCard {
         }
     });
 
+    lineSize = new NumUpDown({
+        name: "lineSize",
+        displayName: "Line Size",
+        value: 3,
+        options: {
+            minValue: {
+                type: powerbiVisualsApi.visuals.ValidatorType.Min,
+                value: 1,
+            },
+            maxValue: {
+                type: powerbiVisualsApi.visuals.ValidatorType.Max,
+                value: 10,
+            }
+        }
+    });
+
+    displayLabels = new formattingSettings.ToggleSwitch({
+        name: "displayLabels",
+        displayName: "Display Labels",
+        value: false
+    });
+    
+    labelsPosition = new AutoDropdown({
+        name: "labelsPosition",
+        displayName: "Labels Position",
+        value: "middle"
+    });
+
     name: string = "style";
     displayName: string = "Style";
-    slices: Array<FormattingSettingsSlice> = [this.elementStyle, this.markerSize];
+    slices: Array<FormattingSettingsSlice> = [this.elementStyle, this.lineSize, this.markerSize, this.displayLabels, this.labelsPosition];
 }
 
 class LegendCardSettings extends FormattingSettingsCard {
-
-    legendOrientation = new AutoDropdown({
-        name: "legendOrientation",
-        displayName: "Orientation",
-        value: "l"
-    });
 
     show = new formattingSettings.ToggleSwitch({
         name: "show",
@@ -111,16 +133,42 @@ class LegendCardSettings extends FormattingSettingsCard {
         value: true
     });
 
+    legendOrientation = new AutoDropdown({
+        name: "legendOrientation",
+        displayName: "Orientation",
+        value: "l"
+    });
+
     name: string = "legend";
     displayName: string = "Legend";
     slices: Array<FormattingSettingsSlice> = [this.show, this.legendOrientation];
+}
+
+class FetchMoreData extends FormattingSettingsCard {
+
+    activate = new formattingSettings.ToggleSwitch({
+        name: "activate",
+        displayName: "Activate",
+        value: false
+    });
+
+    displayVisual = new formattingSettings.ToggleSwitch({
+        name: "displayVisual",
+        displayName: "Refresh Visual",
+        value: true
+    });
+
+    name: string = "fetchMoreData";
+    displayName: string = "Fetch More Data";
+    slices: Array<FormattingSettingsSlice> = [this.activate, this.displayVisual];
 }
 
 export class VisualFormattingSettingsModel extends FormattingSettingsModel {
     axisCardSettings = new AxisCardSettings();
     styleCardSettings = new StyleCardSettings();
     legendCardSettings = new LegendCardSettings();
+    fetchMoreData = new FetchMoreData()
 
-    cards = [this.axisCardSettings, this.styleCardSettings, this.legendCardSettings];
+    cards = [this.axisCardSettings, this.styleCardSettings, this.legendCardSettings, this.fetchMoreData];
     
 }

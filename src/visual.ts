@@ -35,26 +35,19 @@ import VisualUpdateOptions = powerbi.extensibility.visual.VisualUpdateOptions;
 import IVisual = powerbi.extensibility.visual.IVisual;
 import ISelectionId = powerbi.visuals.ISelectionId;
 import IVisualHost = powerbi.extensibility.visual.IVisualHost;
-import DataViewTableRow = powerbi.DataViewTableRow;
 import IColorPalette = powerbi.extensibility.IColorPalette;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
-import Fill = powerbi.Fill;
-import DataViewObjectPropertyIdentifier = powerbi.DataViewObjectPropertyIdentifier;
-import { dataViewObjects } from "powerbi-visuals-utils-dataviewutils";
 import Plotly from 'plotly.js-dist';
-import VisualObjectInstanceEnumerationObject = powerbi.VisualObjectInstanceEnumerationObject;
 import VisualDataChangeOperationKind = powerbi.VisualDataChangeOperationKind;
 
 import { VisualFormattingSettingsModel } from "./settings";
 import { VisualSettings } from "./settings";
-import { color, group } from "d3";
 
 export interface dataPoint {
     x: powerbi.PrimitiveValue,
     y: powerbi.PrimitiveValue,
     z: powerbi.PrimitiveValue,
     legend: powerbi.PrimitiveValue,
-    group: powerbi.PrimitiveValue,
     selection: ISelectionId
 }
 
@@ -62,8 +55,7 @@ interface tableInformations {
     xColumnName: string,
     yColumnName: string,
     zColumnName: string,
-    legendColumnName: string,
-    groupColumnName: string
+    legendColumnName: string
 }
 
 export class Visual implements IVisual {
@@ -105,8 +97,7 @@ export class Visual implements IVisual {
             xColumnName: "",
             yColumnName: "",
             zColumnName: "",
-            legendColumnName: "",
-            groupColumnName: ""
+            legendColumnName: ""
         }
 
         const groupIndex = table.columns.findIndex(column => column.roles.group);
@@ -114,13 +105,11 @@ export class Visual implements IVisual {
         const yColumnName = table.columns.find(column => column.roles.y).displayName
         const zColumnName = table.columns.find(column => column.roles.z).displayName
         const legendColumnName = table.columns.find(column => column.roles.legend).displayName
-        const groupColumnName = (groupIndex != -1) ? table.columns.find(column => column.roles.group).displayName : ""
 
         tableInformations.xColumnName = xColumnName
         tableInformations.yColumnName = yColumnName
         tableInformations.zColumnName = zColumnName
         tableInformations.legendColumnName = legendColumnName
-        tableInformations.groupColumnName = groupColumnName
 
         return tableInformations
     }
@@ -154,15 +143,16 @@ export class Visual implements IVisual {
                 mode: this.formattingSettings.styleCardSettings.elementStyle.value,
                 type: 'scatter3d',
                 name: legend,
-                legendgroup: "",
                 text: [],
-                marker: { size: this.formattingSettings.styleCardSettings.markerSize.value },
+                marker: {
+                    size: this.formattingSettings.styleCardSettings.markerSize.value
+                },
                 line: {
-                    color: color
+                    color: color,
+                    width: this.formattingSettings.styleCardSettings.lineSize.value
                 },
                 hovertemplate:
                     `<b>${tableInformations.legendColumnName}:</b> ${legend}<br>` +
-                    // `<b>${tableInformations.groupColumnName} </b> ${group}<br>`+
                     `<b>${tableInformations.zColumnName}:</b> ` + "%{z}</br>" +
                     `<b>${tableInformations.xColumnName}:</b> ` + "%{x}</br>" +
                     `<b>${tableInformations.yColumnName}:</b> ` + "%{y}</br>"
@@ -173,13 +163,10 @@ export class Visual implements IVisual {
                 trace.y.push(point.y);
                 trace.z.push(point.z);
                 trace.text.push(point.legend);
-                trace.legendgroup = point.group;
             });
 
             return trace;
         });
-
-        
 
         return traces
     }
@@ -191,77 +178,123 @@ export class Visual implements IVisual {
             return;
         }
 
-        // // Fetch More Data
-        this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
+        if (this.formattingSettings.fetchMoreData.displayVisual.value) {
 
-        if (options.operationKind === VisualDataChangeOperationKind.Create) {
-            this.windowsLoaded = 1;
-        }
-        if (options.operationKind === VisualDataChangeOperationKind.Append) {
-            this.windowsLoaded += 1;
-        }
+            if (this.formattingSettings.fetchMoreData.activate.value) {
+                this.host.displayWarningIcon("Fetch More Data", "Fetch More Data option is activated and can slow the visual creation.")
+                // // Fetch More Data
+                this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
 
-        let rowCount = options.dataViews[0].table.rows.length;
-
-        // TODO: change this to display a better message
-        if (options.dataViews[0].metadata.segment) {
-            // this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
-            let canFetchMore = this.host.fetchMoreData();
-            if (!canFetchMore) {
-                // this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
-            }
-        } else {
-            // this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
-        }
-
-        const table = options.dataViews[0].table;
-
-        // Transform data
-        this.dataPoints = this.transformTable(table)
-
-        const tableInformations = this.getTableInformations(table)
-
-        const traces = this.createTraces(tableInformations)
-
-        // TODO: draw visual in a function
-        // Draw visual
-        var gd = document.querySelector('div');
-
-        // Définir la mise en page du graphique
-        const layout = {
-            // title: '3D Scatter Plot',
-            scene: {
-                xaxis: {
-                    title: tableInformations.xColumnName,
-                    autorange: this.formattingSettings.axisCardSettings.revertXAxis.value ? 'reversed' : 'true'
-                },
-                yaxis: {
-                    title: tableInformations.yColumnName,
-                    autorange: this.formattingSettings.axisCardSettings.revertYAxis.value ? 'reversed' : 'true'
-                },
-                zaxis: {
-                    title: tableInformations.zColumnName,
-                    autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
+                if (options.operationKind === VisualDataChangeOperationKind.Create) {
+                    this.windowsLoaded = 1;
                 }
-            },
-            showlegend: this.formattingSettings.legendCardSettings.show.value,
-            legend: {
-                "orientation": this.formattingSettings.legendCardSettings.legendOrientation.value,
-            },
-            margin: {
-                l: 0,
-                r: 0,
-                b: 0,
-                t: 0,
-                pad: 0
-            },
-            automargin: true,
-        };
+                if (options.operationKind === VisualDataChangeOperationKind.Append) {
+                    this.windowsLoaded += 1;
+                }
 
-        Plotly.newPlot(gd, traces, layout,
-            { displaylogo: false }, // Hide Plotly Logo
-            // { responsive: true }
-        );
+                let rowCount = options.dataViews[0].table.rows.length;
+
+                // TODO: change this to display a better message
+                if (options.dataViews[0].metadata.segment) {
+                    // this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
+                    let canFetchMore = this.host.fetchMoreData();
+                    if (!canFetchMore) {
+                        // this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
+                    }
+                } else {
+                    // this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
+                }
+            }
+
+            const table = options.dataViews[0].table;
+
+            // Transform data
+            this.dataPoints = this.transformTable(table)
+
+            const tableInformations = this.getTableInformations(table)
+
+            const traces = this.createTraces(tableInformations)
+
+            // TODO: draw visual in a function
+            // Draw visual
+            var gd = document.querySelector('div');
+
+            const generateAnnotations = () => {
+                if (this.formattingSettings.styleCardSettings.displayLabels.value) {
+                    return traces.map(trace => {
+                        let index;
+                        switch (this.formattingSettings.styleCardSettings.labelsPosition.value) {
+                            case 'middle':
+                                index = Math.floor(trace.x.length / 2);
+                                break;
+                            case 'top':
+                                index = trace.x.length - 1;
+                                break;
+                            case 'bottom':
+                                index = 0;
+                                break;
+                            default:
+                                index = trace.x.length - 1; // Par défaut, on utilise 'top'
+                        }
+            
+                        return {
+                            x: trace.x[index],
+                            y: trace.y[index],
+                            z: trace.z[index],
+                            text: trace.name,
+                            font: {
+                                color: trace.line.color,
+                                size: 12
+                            },
+                            showarrow: false
+                        };
+                    });
+                }
+                return [];
+            };    
+
+            // Définir la mise en page du graphique
+            const layout = {
+                // title: '3D Scatter Plot',
+                scene: {
+                    xaxis: {
+                        title: tableInformations.xColumnName,
+                        autorange: this.formattingSettings.axisCardSettings.revertXAxis.value ? 'reversed' : 'true'
+                    },
+                    yaxis: {
+                        title: tableInformations.yColumnName,
+                        autorange: this.formattingSettings.axisCardSettings.revertYAxis.value ? 'reversed' : 'true'
+                    },
+                    zaxis: {
+                        title: tableInformations.zColumnName,
+                        autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
+                    },
+                    annotations: generateAnnotations()
+                },
+                showlegend: this.formattingSettings.legendCardSettings.show.value,
+                legend: {
+                    "orientation": this.formattingSettings.legendCardSettings.legendOrientation.value,
+                },
+                margin: {
+                    l: 0,
+                    r: 0,
+                    b: 0,
+                    t: 0,
+                    pad: 0
+                },
+                automargin: true,
+            };
+
+            Plotly.newPlot(gd, traces, layout,
+                { displaylogo: false }, // Hide Plotly Logo
+                // { responsive: true }
+            );
+
+        }
+        else {
+            this.host.displayWarningIcon("Refresh Visual", "The Refresh Visual option is deactivated so the visual won't be refreshed if you add new data of apply filters.")
+        }
+
     }
 
     /**
@@ -279,14 +312,12 @@ export class Visual implements IVisual {
         const yIndex = table.columns.findIndex(column => column.roles.y);
         const zIndex = table.columns.findIndex(column => column.roles.z);
         const legendIndex = table.columns.findIndex(column => column.roles.legend);
-        const groupIndex = table.columns.findIndex(column => column.roles.group);
 
         table.rows.forEach((row, rowIndex) => {
             const xValue = row[xIndex];
             const yValue = row[yIndex];
             const zValue = row[zIndex];
             const legendValue = row[legendIndex];
-            const groupValue = row[groupIndex] ?? "";
             const selection: ISelectionId = this.host.createSelectionIdBuilder()
                 .withTable(table, rowIndex)
                 .createSelectionId();
@@ -296,7 +327,6 @@ export class Visual implements IVisual {
                 y: yValue,
                 z: zValue,
                 legend: legendValue,
-                group: groupValue,
                 selection: selection
             })
         })

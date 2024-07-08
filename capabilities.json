@@ -19,11 +19,6 @@
             "displayName": "Legend",
             "name": "legend",
             "kind": "Grouping"
-        },
-        {
-            "displayName": "Group",
-            "name": "group",
-            "kind": "Grouping"
         }
     ],
     "dataViewMappings": [
@@ -49,11 +44,6 @@
                         {
                             "for": {
                                 "in": "legend"
-                            }
-                        },
-                        {
-                            "for": {
-                                "in": "group"
                             }
                         }
                     ],
@@ -129,9 +119,51 @@
                         ]
                     }
                 },
+                "lineSize": {
+                    "type": {
+                        "integer": true
+                    }
+                },
                 "markerSize": {
                     "type": {
                         "integer": true
+                    }
+                },
+                "displayLabels": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "labelsPosition": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "middle",
+                                "displayName": "Middle"
+                            },
+                            {
+                                "value": "top",
+                                "displayName": "Top"
+                            },
+                            {
+                                "value": "bottom",
+                                "displayName": "Bottom"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        "fetchMoreData": {
+            "properties": {
+                "activate": {
+                    "type": {
+                        "bool": true
+                    }
+                },
+                "displayVisual": {
+                    "type": {
+                        "bool": true
                     }
                 }
             }
