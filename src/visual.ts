@@ -129,13 +129,13 @@ export class Visual implements IVisual {
 
         // Trier les points par valeur de Z pour chaque légende
         Object.keys(legendTraces).forEach(legend => {
-            switch(this.formattingSettings.axisCardSettings.sortBy.value.toString()) {
-                case "x" : legendTraces[legend].sort((a, b) => a.x - b.x); break;
-                case "y" : legendTraces[legend].sort((a, b) => a.y - b.y); break;
-                case "z" : legendTraces[legend].sort((a, b) => a.z - b.z); break;
-                default : legendTraces[legend].sort((a, b) => a.z - b.z);
+            switch (this.formattingSettings.axisCardSettings.sortBy.value.toString()) {
+                case "x": legendTraces[legend].sort((a, b) => a.x - b.x); break;
+                case "y": legendTraces[legend].sort((a, b) => a.y - b.y); break;
+                case "z": legendTraces[legend].sort((a, b) => a.z - b.z); break;
+                default: legendTraces[legend].sort((a, b) => a.z - b.z);
             }
-            
+
         });
 
         // Préparer les données pour Plotly après avoir trié
@@ -176,18 +176,59 @@ export class Visual implements IVisual {
         return traces
     }
 
+    public areDataTypesGood(options: VisualUpdateOptions) {
+        if (!options.dataViews || !options.dataViews[0] || !options.dataViews[0].table || options.dataViews.length === 0) {
+            return;  // Sortir si les données ne sont pas disponibles
+        }
+
+        const table = options.dataViews[0].table;
+        const columns = table.columns;
+
+        const xIndex = columns.findIndex(c => c.roles['x']);
+        const yIndex = columns.findIndex(c => c.roles['y']);
+        const zIndex = columns.findIndex(c => c.roles['z']);
+        const legendIndex = columns.findIndex(c => c.roles['legend']);
+
+        if (xIndex === -1 || yIndex === -1 || zIndex === -1) {
+            return;
+        }
+
+        const isXNumeric = columns[xIndex].type.numeric;
+        const isYNumeric = columns[yIndex].type.numeric;
+        const isZNumeric = columns[zIndex].type.numeric;
+
+
+
+        if (legendIndex != -1) {
+            const isLegendValid = columns[legendIndex].type.numeric || columns[legendIndex].type.text;
+            return isXNumeric && isYNumeric && isZNumeric && isLegendValid
+        }
+        else {
+            return isXNumeric && isYNumeric && isZNumeric
+        }
+
+    }
+
+    private displayInvalidData() {
+        const gd = document.querySelector('div');
+        if (gd) {
+            gd.innerHTML = '<p>Invalid data.</p><p>Check that the X, Y and Z axes are numerical and that the Legend is numerical or textual.</p>';
+        }
+    }
+
     public update(options: VisualUpdateOptions) {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
 
-        if (!options.dataViews || options.dataViews.length === 0 || !options.dataViews[0].table) {
+        if (!this.areDataTypesGood(options)) {
+            this.displayInvalidData()
             return;
         }
 
         if (this.formattingSettings.fetchMoreData.displayVisual.value) {
-
+            // Fetch More Data
             if (this.formattingSettings.fetchMoreData.activate.value) {
                 this.host.displayWarningIcon("Fetch More Data", "Fetch More Data option is activated and can slow the visual creation.")
-                // // Fetch More Data
+
                 this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
 
                 if (options.operationKind === VisualDataChangeOperationKind.Create) {
