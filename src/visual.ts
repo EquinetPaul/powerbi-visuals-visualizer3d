@@ -73,13 +73,10 @@ export class Visual implements IVisual {
     private textNode: Text;
     private windowsLoaded: number;
 
-    private selectionManager: ISelectionManager;
-
     constructor(options: VisualConstructorOptions) {
         this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
         this.host = options.host;
         this.colorPalette = options.host.colorPalette;
-        this.selectionManager = this.host.createSelectionManager();
         this.target = options.element;
         this.updateCount = 0;
         this.windowsLoaded = 0;
