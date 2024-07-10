@@ -27,7 +27,7 @@
 
 import powerbi from "powerbi-visuals-api";
 import { FormattingSettingsService } from "powerbi-visuals-utils-formattingmodel";
-import { ColorHelper, hexToRGBString } from "powerbi-visuals-utils-colorutils";
+import { hexToRGBString } from "powerbi-visuals-utils-colorutils";
 import "./../style/visual.less";
 
 import VisualConstructorOptions = powerbi.extensibility.visual.VisualConstructorOptions;
@@ -38,8 +38,6 @@ import IVisualHost = powerbi.extensibility.visual.IVisualHost;
 import IColorPalette = powerbi.extensibility.IColorPalette;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 import Plotly from 'plotly.js-dist';
-import VisualDataChangeOperationKind = powerbi.VisualDataChangeOperationKind;
-import ISelectionManager = powerbi.extensibility.ISelectionManager;
 
 import { VisualFormattingSettingsModel } from "./settings";
 import { VisualSettings } from "./settings";
@@ -92,14 +90,13 @@ export class Visual implements IVisual {
     }
 
     public getTableInformations(table: powerbi.DataViewTable) {
-        let tableInformations = {
+        const tableInformations = {
             xColumnName: "",
             yColumnName: "",
             zColumnName: "",
             legendColumnName: ""
         }
 
-        const groupIndex = table.columns.findIndex(column => column.roles.group);
         const xColumnName = table.columns.find(column => column.roles.x).displayName
         const yColumnName = table.columns.find(column => column.roles.y).displayName
         const zColumnName = table.columns.find(column => column.roles.z).displayName
@@ -210,9 +207,22 @@ export class Visual implements IVisual {
     private displayInvalidData() {
         const gd = document.querySelector('div');
         if (gd) {
-            gd.innerHTML = '<p>Invalid data.</p><p>Check that the X, Y and Z axes are numerical and that the Legend is numerical or textual.</p>';
+            // Clear existing content
+            while (gd.firstChild) {
+                gd.removeChild(gd.firstChild);
+            }
+            
+            // Create paragraph elements
+            const p1 = document.createElement('p');
+            p1.textContent = 'Invalid data.';
+            const p2 = document.createElement('p');
+            p2.textContent = 'Check that the X, Y and Z axes are numerical and that the Legend is numerical or textual.';
+            
+            // Append paragraph elements to the div
+            gd.appendChild(p1);
+            gd.appendChild(p2);
         }
-    }
+    }    
 
     public update(options: VisualUpdateOptions) {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
@@ -228,7 +238,7 @@ export class Visual implements IVisual {
                 this.host.displayWarningIcon("Fetch More Data", "Fetch More Data option is activated and can slow the visual creation.")
                 this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
                 if (options.dataViews[0].metadata.segment) {
-                    let canFetchMore = this.host.fetchMoreData();
+                    this.host.fetchMoreData();
                 }
             }
 
@@ -237,13 +247,13 @@ export class Visual implements IVisual {
 
             // Transform data
             this.dataPoints = this.transformTable(table)
-            const tableInformations = this.getTableInformations(table)
+            const tableInformations : tableInformations = this.getTableInformations(table)
 
             // Create traces
             const traces = this.createTraces(tableInformations)
 
             // Draw visual
-            var gd = document.querySelector('div');
+            const gd : HTMLDivElement = document.querySelector('div');
 
             // Définir la mise en page du graphique
             const layout = this.getLayout(tableInformations, traces)

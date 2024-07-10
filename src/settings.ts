@@ -31,12 +31,9 @@ import { formattingSettings } from "powerbi-visuals-utils-formattingmodel";
 import FormattingSettingsCard = formattingSettings.SimpleCard;
 import FormattingSettingsSlice = formattingSettings.Slice;
 import FormattingSettingsModel = formattingSettings.Model;
-import ColorPicker = formattingSettings.ColorPicker;
 import NumUpDown = formattingSettings.NumUpDown;
 import AutoDropdown = formattingSettings.AutoDropdown;
 import powerbiVisualsApi from "powerbi-visuals-api";
-
-import { dataPoint } from "./visual";
 
 import { dataViewObjectsParser } from 'powerbi-visuals-utils-dataviewutils';
 import DataViewObjectsParser = dataViewObjectsParser.DataViewObjectsParser;
