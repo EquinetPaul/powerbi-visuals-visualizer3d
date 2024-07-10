@@ -24,6 +24,10 @@ npm install # This command will install all necessary modules
 pbiviz start
 ```
 
+## v1.2.0.0 (preview)
+- Order by an axis
+- Check data validity 
+
 ## v1.1.0.0
 - Revert **X, Y & Z** axis
 - Change the style of elements (line, scatter, line & scatter)
