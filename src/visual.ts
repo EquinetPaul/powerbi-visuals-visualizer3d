@@ -216,7 +216,7 @@ export class Visual implements IVisual {
 
     public update(options: VisualUpdateOptions) {
         this.formattingSettings = this.formattingSettingsService.populateFormattingSettingsModel(VisualFormattingSettingsModel, options.dataViews[0]);
-
+        
         if (!this.areDataTypesGood(options)) {
             this.displayInvalidData()
             return;
@@ -226,25 +226,9 @@ export class Visual implements IVisual {
             // Fetch More Data
             if (this.formattingSettings.fetchMoreData.activate.value) {
                 this.host.displayWarningIcon("Fetch More Data", "Fetch More Data option is activated and can slow the visual creation.")
-
                 this.settings = Visual.parseSettings(options && options.dataViews && options.dataViews[0]);
-
-                if (options.operationKind === VisualDataChangeOperationKind.Create) {
-                    this.windowsLoaded = 1;
-                }
-                if (options.operationKind === VisualDataChangeOperationKind.Append) {
-                    this.windowsLoaded += 1;
-                }
-
-                let rowCount = options.dataViews[0].table.rows.length;
-
-                // TODO: change this to display a better message
                 if (options.dataViews[0].metadata.segment) {
                     let canFetchMore = this.host.fetchMoreData();
-                    if (!canFetchMore) {
-                    }
-                } else {
-                
                 }
             }
 
@@ -258,7 +242,6 @@ export class Visual implements IVisual {
             // Create traces
             const traces = this.createTraces(tableInformations)
 
-            // TODO: draw visual in a function
             // Draw visual
             var gd = document.querySelector('div');
 
