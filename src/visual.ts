@@ -100,11 +100,12 @@ export class Visual implements IVisual {
             legendColumnName: ""
         }
 
+
         const groupIndex = table.columns.findIndex(column => column.roles.group);
         const xColumnName = table.columns.find(column => column.roles.x).displayName
         const yColumnName = table.columns.find(column => column.roles.y).displayName
         const zColumnName = table.columns.find(column => column.roles.z).displayName
-        const legendColumnName = table.columns.find(column => column.roles.legend).displayName
+        const legendColumnName = table.columns.find(column => column.roles.legend)?.displayName ?? "";
 
         tableInformations.xColumnName = xColumnName
         tableInformations.yColumnName = yColumnName
@@ -236,7 +237,7 @@ export class Visual implements IVisual {
                             default:
                                 index = trace.x.length - 1; // Par défaut, on utilise 'top'
                         }
-            
+
                         return {
                             x: trace.x[index],
                             y: trace.y[index],
@@ -251,7 +252,7 @@ export class Visual implements IVisual {
                     });
                 }
                 return [];
-            };    
+            };
 
             // Définir la mise en page du graphique
             const layout = {
@@ -274,20 +275,26 @@ export class Visual implements IVisual {
                 showlegend: this.formattingSettings.legendCardSettings.show.value,
                 legend: {
                     "orientation": this.formattingSettings.legendCardSettings.legendOrientation.value,
+                    x: this.formattingSettings.legendCardSettings.legendPosition.value
                 },
                 margin: {
                     l: 0,
                     r: 0,
                     b: 0,
-                    t: 0,
+                    t: 50,
                     pad: 0
                 },
                 automargin: true,
             };
 
-            Plotly.newPlot(gd, traces, layout,
-                { displaylogo: false }, // Hide Plotly Logo
-                // { responsive: true }
+            Plotly.newPlot(
+                gd, 
+                traces, 
+                layout,
+                { 
+                    displaylogo: false, 
+                    responsive: true , 
+                    modeBarButtonsToRemove: ['resetCameraLastSave3d', 'toImage'] }
             );
 
         }
@@ -317,7 +324,7 @@ export class Visual implements IVisual {
             const xValue = row[xIndex];
             const yValue = row[yIndex];
             const zValue = row[zIndex];
-            const legendValue = row[legendIndex];
+            const legendValue = legendIndex !== -1 ? row[legendIndex] : '';
             const selection: ISelectionId = this.host.createSelectionIdBuilder()
                 .withTable(table, rowIndex)
                 .createSelectionId();
@@ -332,7 +339,6 @@ export class Visual implements IVisual {
         })
 
         return dataPoints
-
     }
 
     private static parseSettings(dataView: powerbi.DataView): VisualSettings {

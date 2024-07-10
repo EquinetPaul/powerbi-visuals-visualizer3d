@@ -109,6 +109,20 @@
                         ]
                     }
                 },
+                "legendPosition": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "0",
+                                "displayName": "Left"
+                            },
+                            {
+                                "value": "1",
+                                "displayName": "Right"
+                            }
+                        ]
+                    }
+                },
                 "show": {
                     "type": {
                         "bool": true

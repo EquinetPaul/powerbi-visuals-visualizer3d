@@ -139,9 +139,16 @@ class LegendCardSettings extends FormattingSettingsCard {
         value: "l"
     });
 
+    legendPosition = new AutoDropdown({
+        name: "legendPosition",
+        displayName: "Position",
+        value: "0"
+    });
+
+
     name: string = "legend";
     displayName: string = "Legend";
-    slices: Array<FormattingSettingsSlice> = [this.show, this.legendOrientation];
+    slices: Array<FormattingSettingsSlice> = [this.show, this.legendOrientation, this.legendPosition];
 }
 
 class FetchMoreData extends FormattingSettingsCard {
