@@ -90,6 +90,24 @@
                     "type": {
                         "bool": true
                     }
+                },
+                "sortBy": {
+                    "type": {
+                        "enumeration": [
+                            {
+                                "value": "x",
+                                "displayName": "X Axis"
+                            },
+                            {
+                                "value": "y",
+                                "displayName": "Y Axis"
+                            },
+                            {
+                                "value": "z",
+                                "displayName": "Z Axis"
+                            }
+                        ]
+                    }
                 }
             }
         },

@@ -63,9 +63,16 @@ class AxisCardSettings extends FormattingSettingsCard {
         value: false
     });
 
+    sortBy = new AutoDropdown({
+        name: "sortBy",
+        displayName: "Sort By",
+        value: "z"
+    });
+
+
     name: string = "axis";
     displayName: string = "Axis";
-    slices: Array<FormattingSettingsSlice> = [this.revertXAxis, this.revertYAxis, this.revertZAxis];
+    slices: Array<FormattingSettingsSlice> = [this.revertXAxis, this.revertYAxis, this.revertZAxis, this.sortBy];
 }
 
 class StyleCardSettings extends FormattingSettingsCard {
@@ -73,7 +80,7 @@ class StyleCardSettings extends FormattingSettingsCard {
     elementStyle = new AutoDropdown({
         name: "elementStyle",
         displayName: "Element",
-        value: "lines"
+        value: "markers"
     });
 
     markerSize = new NumUpDown({

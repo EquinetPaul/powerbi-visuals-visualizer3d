@@ -39,6 +39,7 @@ import IColorPalette = powerbi.extensibility.IColorPalette;
 import ILocalizationManager = powerbi.extensibility.ILocalizationManager;
 import Plotly from 'plotly.js-dist';
 import VisualDataChangeOperationKind = powerbi.VisualDataChangeOperationKind;
+import ISelectionManager = powerbi.extensibility.ISelectionManager;
 
 import { VisualFormattingSettingsModel } from "./settings";
 import { VisualSettings } from "./settings";
@@ -72,12 +73,13 @@ export class Visual implements IVisual {
     private textNode: Text;
     private windowsLoaded: number;
 
+    private selectionManager: ISelectionManager;
 
     constructor(options: VisualConstructorOptions) {
         this.formattingSettingsService = new FormattingSettingsService(this.localizationManager);
         this.host = options.host;
         this.colorPalette = options.host.colorPalette;
-
+        this.selectionManager = this.host.createSelectionManager();
         this.target = options.element;
         this.updateCount = 0;
         this.windowsLoaded = 0;
@@ -99,7 +101,6 @@ export class Visual implements IVisual {
             zColumnName: "",
             legendColumnName: ""
         }
-
 
         const groupIndex = table.columns.findIndex(column => column.roles.group);
         const xColumnName = table.columns.find(column => column.roles.x).displayName
@@ -131,7 +132,13 @@ export class Visual implements IVisual {
 
         // Trier les points par valeur de Z pour chaque légende
         Object.keys(legendTraces).forEach(legend => {
-            legendTraces[legend].sort((a, b) => a.z - b.z);
+            switch(this.formattingSettings.axisCardSettings.sortBy.value.toString()) {
+                case "x" : legendTraces[legend].sort((a, b) => a.x - b.x); break;
+                case "y" : legendTraces[legend].sort((a, b) => a.y - b.y); break;
+                case "z" : legendTraces[legend].sort((a, b) => a.z - b.z); break;
+                default : legendTraces[legend].sort((a, b) => a.z - b.z);
+            }
+            
         });
 
         // Préparer les données pour Plotly après avoir trié
@@ -207,94 +214,32 @@ export class Visual implements IVisual {
                 }
             }
 
+            // Get Data
             const table = options.dataViews[0].table;
 
             // Transform data
             this.dataPoints = this.transformTable(table)
-
             const tableInformations = this.getTableInformations(table)
 
+            // Create traces
             const traces = this.createTraces(tableInformations)
 
             // TODO: draw visual in a function
             // Draw visual
             var gd = document.querySelector('div');
 
-            const generateAnnotations = () => {
-                if (this.formattingSettings.styleCardSettings.displayLabels.value) {
-                    return traces.map(trace => {
-                        let index;
-                        switch (this.formattingSettings.styleCardSettings.labelsPosition.value) {
-                            case 'middle':
-                                index = Math.floor(trace.x.length / 2);
-                                break;
-                            case 'top':
-                                index = trace.x.length - 1;
-                                break;
-                            case 'bottom':
-                                index = 0;
-                                break;
-                            default:
-                                index = trace.x.length - 1; // Par défaut, on utilise 'top'
-                        }
-
-                        return {
-                            x: trace.x[index],
-                            y: trace.y[index],
-                            z: trace.z[index],
-                            text: trace.name,
-                            font: {
-                                color: trace.line.color,
-                                size: 12
-                            },
-                            showarrow: false
-                        };
-                    });
-                }
-                return [];
-            };
-
             // Définir la mise en page du graphique
-            const layout = {
-                // title: '3D Scatter Plot',
-                scene: {
-                    xaxis: {
-                        title: tableInformations.xColumnName,
-                        autorange: this.formattingSettings.axisCardSettings.revertXAxis.value ? 'reversed' : 'true'
-                    },
-                    yaxis: {
-                        title: tableInformations.yColumnName,
-                        autorange: this.formattingSettings.axisCardSettings.revertYAxis.value ? 'reversed' : 'true'
-                    },
-                    zaxis: {
-                        title: tableInformations.zColumnName,
-                        autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
-                    },
-                    annotations: generateAnnotations()
-                },
-                showlegend: this.formattingSettings.legendCardSettings.show.value,
-                legend: {
-                    "orientation": this.formattingSettings.legendCardSettings.legendOrientation.value,
-                    x: this.formattingSettings.legendCardSettings.legendPosition.value
-                },
-                margin: {
-                    l: 0,
-                    r: 0,
-                    b: 0,
-                    t: 50,
-                    pad: 0
-                },
-                automargin: true,
-            };
+            const layout = this.getLayout(tableInformations, traces)
 
             Plotly.newPlot(
-                gd, 
-                traces, 
+                gd,
+                traces,
                 layout,
-                { 
-                    displaylogo: false, 
-                    responsive: true , 
-                    modeBarButtonsToRemove: ['resetCameraLastSave3d', 'toImage'] }
+                {
+                    displaylogo: false,
+                    responsive: true,
+                    modeBarButtonsToRemove: ['resetCameraLastSave3d', 'toImage']
+                }
             );
 
         }
@@ -302,6 +247,76 @@ export class Visual implements IVisual {
             this.host.displayWarningIcon("Refresh Visual", "The Refresh Visual option is deactivated so the visual won't be refreshed if you add new data of apply filters.")
         }
 
+    }
+
+    public getLayout(tableInformations, traces) {
+        const generateAnnotations = () => {
+            if (this.formattingSettings.styleCardSettings.displayLabels.value) {
+                return traces.map(trace => {
+                    let index;
+                    switch (this.formattingSettings.styleCardSettings.labelsPosition.value) {
+                        case 'middle':
+                            index = Math.floor(trace.x.length / 2);
+                            break;
+                        case 'top':
+                            index = trace.x.length - 1;
+                            break;
+                        case 'bottom':
+                            index = 0;
+                            break;
+                        default:
+                            index = trace.x.length - 1; // Par défaut, on utilise 'top'
+                    }
+
+                    return {
+                        x: trace.x[index],
+                        y: trace.y[index],
+                        z: trace.z[index],
+                        text: trace.name,
+                        font: {
+                            color: trace.line.color,
+                            size: 12
+                        },
+                        showarrow: false
+                    };
+                });
+            }
+            return [];
+        };
+
+        const layout = {
+            // title: '3D Scatter Plot',
+            scene: {
+                xaxis: {
+                    title: tableInformations.xColumnName,
+                    autorange: this.formattingSettings.axisCardSettings.revertXAxis.value ? 'reversed' : 'true'
+                },
+                yaxis: {
+                    title: tableInformations.yColumnName,
+                    autorange: this.formattingSettings.axisCardSettings.revertYAxis.value ? 'reversed' : 'true'
+                },
+                zaxis: {
+                    title: tableInformations.zColumnName,
+                    autorange: this.formattingSettings.axisCardSettings.revertZAxis.value ? 'reversed' : 'true'
+                },
+                annotations: generateAnnotations()
+            },
+            showlegend: this.formattingSettings.legendCardSettings.show.value,
+            legend: {
+                "orientation": this.formattingSettings.legendCardSettings.legendOrientation.value,
+                x: this.formattingSettings.legendCardSettings.legendPosition.value
+            },
+            margin: {
+                l: 0,
+                r: 0,
+                b: 0,
+                t: 50,
+                pad: 0
+            },
+            automargin: true,
+        };
+
+        return layout
     }
 
     /**
