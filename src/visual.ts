@@ -178,7 +178,7 @@ export class Visual implements IVisual {
 
     public areDataTypesGood(options: VisualUpdateOptions) {
         if (!options.dataViews || !options.dataViews[0] || !options.dataViews[0].table || options.dataViews.length === 0) {
-            return;  // Sortir si les données ne sont pas disponibles
+            return;
         }
 
         const table = options.dataViews[0].table;
@@ -196,8 +196,6 @@ export class Visual implements IVisual {
         const isXNumeric = columns[xIndex].type.numeric;
         const isYNumeric = columns[yIndex].type.numeric;
         const isZNumeric = columns[zIndex].type.numeric;
-
-
 
         if (legendIndex != -1) {
             const isLegendValid = columns[legendIndex].type.numeric || columns[legendIndex].type.text;
@@ -242,13 +240,11 @@ export class Visual implements IVisual {
 
                 // TODO: change this to display a better message
                 if (options.dataViews[0].metadata.segment) {
-                    // this.textNode.textContent = `Loading more data. ${rowCount} rows loaded so far (over ${this.windowsLoaded} fetches)...`;
                     let canFetchMore = this.host.fetchMoreData();
                     if (!canFetchMore) {
-                        // this.textNode.textContent = `Memory limit hit after ${this.windowsLoaded} fetches. We managed to get ${rowCount} rows.`;
                     }
                 } else {
-                    // this.textNode.textContent = `We have all the data we can get (${rowCount} rows over ${this.windowsLoaded} fetches)!`;
+                
                 }
             }
 
