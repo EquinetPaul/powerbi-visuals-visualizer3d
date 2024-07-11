@@ -4,7 +4,7 @@
         "displayName": "3D Visualizer",
         "guid": "powerbivisuals3dvisualizer932FC0D21CE848CB88177D1C0FF1BA9A",
         "visualClassName": "Visual",
-        "version": "1.1.0.0",
+        "version": "1.2.0.0",
         "description": "3D Visualizer",
         "supportUrl": "https://github.com/EquinetPaul/powerbi-visuals-visualizer3d",
         "gitHubUrl": "https://github.com/EquinetPaul/powerbi-visuals-visualizer3d"
@@ -22,5 +22,5 @@
     "capabilities": "capabilities.json",
     "dependencies": null,
     "stringResources": [],
-    "version": "1.1.0.0"
+    "version": "1.2.0.0"
 }
